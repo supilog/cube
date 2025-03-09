@@ -21,12 +21,12 @@ $breakpoints: (
 /* cube */
 $cube-size: 20px;
 $cubes: (
-    green: #00db30,
-    blue: #003ef3,
-    red: #fc1529,
-    orange: #ff5100,
-    yellow: #bae012,
-    white: #f2ece3,
+    "green": #00db30,
+    "blue": #003ef3,
+    "red": #fc1529,
+    "orange": #ff5100,
+    "yellow": #bae012,
+    "white": #f2ece3,
 );
 
 @each $key, $item in $cubes {
