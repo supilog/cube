@@ -1,0 +1,180 @@
+@use "sass:map";
+@import url('https://fonts.googleapis.com/css2?family=Kablammo&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/* colors */
+$colors: (
+    stroke: #999,
+);
+
+/* breakpoints */
+$breakpoints: (
+    'sm': 'screen and (min-width: 576px)',
+    'md': 'screen and (min-width: 768px)',
+    'lg': 'screen and (min-width: 992px)',
+    'xl': 'screen and (min-width: 1200px)',
+) !default;
+@mixin media($breakpoint) {
+    @media #{map.get($breakpoints, $breakpoint)} {
+        @content;
+    }
+}
+
+/* cube */
+$cube-size: 20px;
+$cubes: (
+    green: #00db30,
+    blue: #003ef3,
+    red: #fc1529,
+    orange: #ff5100,
+    yellow: #bae012,
+    white: #f2ece3,
+);
+
+@each $key, $item in $cubes {
+    .cube-#{$key} {
+        background-color: $item;
+    }
+}
+
+@each $key, $item in $cubes {
+    .text-cube-#{$key} {
+        color: $item;
+    }
+}
+
+#cubeview {
+    margin: 0 auto;
+    position: relative;
+    display: block;
+    width: calc($cube-size * 12);
+    height: calc($cube-size * 9);
+    z-index: 0;
+    @include media(sm) {
+        width: calc($cube-size * 12);
+        height: calc($cube-size * 9);
+    }
+
+    .surface {
+        position: absolute;
+        width: calc($cube-size * 3);
+        height: calc($cube-size * 3);
+        @include media(sm) {
+            width: calc($cube-size * 3);
+            height: calc($cube-size * 3);
+        }
+
+        &.u {
+            top: 0px;
+            left: calc($cube-size * 3);
+        }
+
+        &.d {
+            top: calc($cube-size * 6);
+            left: calc($cube-size * 3);
+        }
+
+        &.b {
+            top: calc($cube-size * 3);
+            left: calc($cube-size * 9);
+        }
+
+        &.f {
+            top: calc($cube-size * 3);
+            left: calc($cube-size * 3);
+        }
+
+        &.l {
+            top: calc($cube-size * 3);
+            left: 0px;
+        }
+
+        &.r {
+            top: calc($cube-size * 3);
+            left: calc($cube-size * 6);
+        }
+
+        .wrapper {
+            width: 100%;
+            height: 100%;
+
+            .cube {
+                position: absolute;
+                width: calc($cube-size - 2px);
+                height: calc($cube-size - 2px);
+                border: 1px solid #000;
+
+                &.cube-1 {
+                    top: 0px;
+                    left: 0px;
+                }
+
+                &.cube-2 {
+                    top: 0px;
+                    left: calc($cube-size * 1);
+                }
+
+                &.cube-3 {
+                    top: 0px;
+                    left: calc($cube-size * 2);
+                }
+
+                &.cube-4 {
+                    top: calc($cube-size * 1);
+                    left: 0px;
+                }
+
+                &.cube-5 {
+                    top: calc($cube-size * 1);
+                    left: calc($cube-size * 1);
+                }
+
+                &.cube-6 {
+                    top: calc($cube-size * 1);
+                    left: calc($cube-size * 2);
+                }
+
+                &.cube-7 {
+                    top: calc($cube-size * 2);
+                    left: 0px;
+                }
+
+                &.cube-8 {
+                    top: calc($cube-size * 2);
+                    left: calc($cube-size * 1);
+                }
+
+                &.cube-9 {
+                    top: calc($cube-size * 2);
+                    left: calc($cube-size * 2);
+                }
+            }
+        }
+    }
+
+}
+
+/* fonts */
+.lobster-regular {
+    font-family: "Lobster", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.montserrat-regular {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.kablammo-regular {
+    font-family: "Kablammo", system-ui;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "MORF" 0;
+}
+
+.text-stroke {
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: map.get($colors, stroke);
+}
