@@ -39,5 +39,6 @@
 <footer>
     <div class="copyright text-center text-xs">©2021-2025 supilog</div>
 </footer>
+@vite('resources/js/timer.js')
 </body>
 </html>
