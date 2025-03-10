@@ -152,6 +152,16 @@ $cubes: (
 
 }
 
+#timer {
+    &.wait{
+        color: map.get($cubes, "red");
+    }
+
+    &.ready{
+        color: map.get($cubes, "green");
+    }
+}
+
 /* fonts */
 .lobster-regular {
     font-family: "Lobster", sans-serif;
