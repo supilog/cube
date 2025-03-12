@@ -31,6 +31,8 @@ const cubelog_timer = {
         window.addEventListener('keyup', (event) => {
             this.keyUp(event);
         });
+        // スクランブル情報の取得
+        this.scramble();
     },
     keyDown: function (event) {
         if (event.keyCode !== this.keys.Space) {
@@ -109,6 +111,19 @@ const cubelog_timer = {
     },
     timerStore: function () {
 
+    },
+    scramble: function () {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/scramble');
+        xhr.send();
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    const json = JSON.parse(xhr.responseText);
+                    document.getElementById('scramble').textContent = json.scramble.text;
+                }
+            }
+        }
     }
 };
 

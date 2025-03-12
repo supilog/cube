@@ -1,5 +1,32 @@
 @use "sass:map";
 @import url('https://fonts.googleapis.com/css2?family=Kablammo&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* fonts */
+.josefin-sans-regular {
+    font-family: "Josefin Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.oswald-regular {
+    font-family: "Oswald", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.roboto-regular {
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
 /* colors */
 $colors: (
     stroke: #999,
@@ -21,11 +48,11 @@ $breakpoints: (
 /* cube */
 $cube-size: 20px;
 $cubes: (
-    "green": #00db30,
-    "blue": #003ef3,
-    "red": #fc1529,
-    "orange": #ff5100,
-    "yellow": #bae012,
+    "green": #13872d,
+    "blue": #0341df,
+    "red": #e20017,
+    "orange": #fc7109,
+    "yellow": #fefa0a,
     "white": #f2ece3,
 );
 
@@ -62,32 +89,32 @@ $cubes: (
             height: calc($cube-size * 3);
         }
 
-        &.u {
-            top: 0px;
+        &.up {
+            top: 0;
             left: calc($cube-size * 3);
         }
 
-        &.d {
+        &.down {
             top: calc($cube-size * 6);
             left: calc($cube-size * 3);
         }
 
-        &.b {
+        &.back {
             top: calc($cube-size * 3);
             left: calc($cube-size * 9);
         }
 
-        &.f {
+        &.front {
             top: calc($cube-size * 3);
             left: calc($cube-size * 3);
         }
 
-        &.l {
+        &.left {
             top: calc($cube-size * 3);
-            left: 0px;
+            left: 0;
         }
 
-        &.r {
+        &.right {
             top: calc($cube-size * 3);
             left: calc($cube-size * 6);
         }
@@ -103,23 +130,23 @@ $cubes: (
                 border: 1px solid #000;
 
                 &.cube-1 {
-                    top: 0px;
-                    left: 0px;
+                    top: 0;
+                    left: 0;
                 }
 
                 &.cube-2 {
-                    top: 0px;
+                    top: 0;
                     left: calc($cube-size * 1);
                 }
 
                 &.cube-3 {
-                    top: 0px;
+                    top: 0;
                     left: calc($cube-size * 2);
                 }
 
                 &.cube-4 {
                     top: calc($cube-size * 1);
-                    left: 0px;
+                    left: 0;
                 }
 
                 &.cube-5 {
@@ -134,7 +161,7 @@ $cubes: (
 
                 &.cube-7 {
                     top: calc($cube-size * 2);
-                    left: 0px;
+                    left: 0;
                 }
 
                 &.cube-8 {
@@ -153,11 +180,11 @@ $cubes: (
 }
 
 #timer {
-    &.wait{
+    &.wait {
         color: map.get($cubes, "red");
     }
 
-    &.ready{
+    &.ready {
         color: map.get($cubes, "green");
     }
 }
