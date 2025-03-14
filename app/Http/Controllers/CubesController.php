@@ -18,14 +18,13 @@ class CubesController extends Controller
             'left' => 'orange',
             'right' => 'red'
         ];
-//        $scramble = $cs->scramble();
-//        $scramble_text_array = $cs->scrambleToTextArray($scramble);
-//        $scramble_text = implode(' ', $scramble_text_array);
         $data = [
             'colors' => $colors
-//            'scramble_text' => $scramble_text
         ];
         return view('index', $data);
     }
 
+    public function test($id){
+        return view('test' . $id);
+    }
 }

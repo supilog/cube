@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/cube.js',
                 'resources/js/timer.js',
                 'resources/scss/test.scss',
+                'resources/js/db.js',
             ],
             refresh: true,
         }),
