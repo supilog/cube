@@ -14,6 +14,9 @@ const cubelog_timer = {
     cubeTimerInterval: 37,
     // 開始時間
     startTime: 0,
+    // 経過時間
+    elapsedTime: 0,
+    // スクランブル
     // 長押しタイマー
     longPushTimer: '',
     // 長押し判定値
@@ -58,6 +61,8 @@ const cubelog_timer = {
             this.timerStore();
             // 初期化処理
             this.currentStatus = this.status.neutral;
+            // スクランブル再表示
+            this.scramble();
         }
 
     },
@@ -99,10 +104,10 @@ const cubelog_timer = {
         }.bind(this), this.cubeTimerInterval);
     },
     timerView: function () {
-        const elapsedTime = Date.now() - this.startTime;
-        const minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
-        const seconds = Math.floor((elapsedTime / 1000) % 60);
-        const milliseconds = Math.floor((elapsedTime % 1000) / 10);
+        this.elapsedTime = Date.now() - this.startTime;
+        const minutes = Math.floor((this.elapsedTime / 1000 / 60) % 60);
+        const seconds = Math.floor((this.elapsedTime / 1000) % 60);
+        const milliseconds = Math.floor((this.elapsedTime % 1000) / 10);
         if (minutes > 0) {
             document.getElementById('timer').textContent = String(minutes) + ':' + String(seconds).padStart(2, '0') + '.' + String(milliseconds).padStart(2, '0');
         } else {
@@ -110,7 +115,13 @@ const cubelog_timer = {
         }
     },
     timerStore: function () {
-
+        let data = {
+            dataset: 1,
+            date: Date.now(),
+            scramble: document.getElementById('scramble').textContent,
+            time: this.elapsedTime
+        }
+        CubeDB.storeData(data);
     },
     scramble: function () {
         var xhr = new XMLHttpRequest();
