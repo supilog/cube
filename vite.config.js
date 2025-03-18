@@ -6,9 +6,9 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/scss/app.scss',
-                'resources/js/cube.js',
                 'resources/js/timer.js',
-                'resources/js/db.js',
+                'resources/js/list.js',
+                'resources/js/menu.js',
             ],
             refresh: true,
         }),

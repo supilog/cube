@@ -24,6 +24,16 @@ class CubesController extends Controller
         return view('index', $data);
     }
 
+    public function list() {
+        $data = [];
+        return view('list', $data);
+    }
+
+    public function graph() {
+        $data = [];
+        return view('graph', $data);
+    }
+
     public function test($id){
         return view('test' . $id);
     }

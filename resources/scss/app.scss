@@ -54,6 +54,8 @@ $cubes: (
     "orange": #fc7109,
     "yellow": #fefa0a,
     "white": #f2ece3,
+    "gray": #696156,
+    'hr': #ECEAE8
 );
 
 @each $key, $item in $cubes {
@@ -186,6 +188,103 @@ $cubes: (
 
     &.ready {
         color: map.get($cubes, "green");
+    }
+}
+
+header {
+}
+
+#main {
+    nav {
+        position: fixed;
+        height: 100vh;
+        top: 40px;
+        width: 60px;
+        left: -100%;
+        transition: all 0.5s;
+        border-top: 1px solid #fff;
+
+        &.open {
+            left: 0;
+        }
+
+        .nav-list {
+            li {
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+#records {
+    .list-time {
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+            color: #0000EE;
+        }
+    }
+
+    .wrapper {
+        border-bottom: 1px solid map.get($cubes, "hr");
+    }
+}
+
+#show {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: rgba(0, 0, 0, 50%);
+    padding: 40px 20px;
+    overflow: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s;
+    box-sizing: border-box;
+    z-index: -1;
+
+    &.is-active{
+        opacity: 1;
+        visibility: visible;
+        z-index: 1;
+    }
+
+    .modal-container {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        max-width: 600px;
+        width: 90%;
+
+        .modal-content {
+            background: #fff;
+            text-align: left;
+            line-height: 1.8;
+            padding: 0.8rem 1.4rem;
+        }
+
+        .modal-content p {
+            margin: 1em 0;
+        }
+
+        .modal-close {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: -15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            color: #fff;
+            background: map.get($cubes, "green");
+            border-radius: 50%;
+            cursor: pointer;
+        }
     }
 }
 
