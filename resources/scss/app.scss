@@ -201,11 +201,13 @@ header {
         top: 40px;
         width: 60px;
         left: -100%;
-        transition: all 0.5s;
+        transition: all .2s .2s ease-in-out;
         border-top: 1px solid #fff;
+        opacity: 0;
 
         &.open {
             left: 0;
+            opacity: 1;
         }
 
         .nav-list {
@@ -247,7 +249,7 @@ header {
     box-sizing: border-box;
     z-index: -1;
 
-    &.is-active{
+    &.is-active {
         opacity: 1;
         visibility: visible;
         z-index: 1;
@@ -286,6 +288,14 @@ header {
             cursor: pointer;
         }
     }
+}
+
+.canvas-container {
+    position: relative;
+    width: calc(100% - 40px);
+    height: 100%;
+    overflow: hidden;
+    margin: 0 20px;
 }
 
 /* fonts */

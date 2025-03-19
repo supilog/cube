@@ -33,9 +33,7 @@
             <li><a href="{{ route('graph') }}" class="material-icons">bar_chart</a></li>
         </ul>
     </nav>
-    <div class="max-w-7xl mx-auto p-6 lg:p-8">
-        @yield('content')
-    </div>
+    @yield('content')
 </div>
 <footer>
     <div class="copyright text-center text-xs">©2021-2025 supilog</div>
