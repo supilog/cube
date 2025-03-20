@@ -12,11 +12,11 @@ class CubesController extends Controller
     {
         $colors = [
             'up' => 'white',
-            'down' => 'yellow',
-            'back' => 'blue',
-            'front' => 'green',
             'left' => 'orange',
-            'right' => 'red'
+            'front' => 'green',
+            'right' => 'red',
+            'back' => 'blue',
+            'down' => 'yellow',
         ];
         $data = [
             'colors' => $colors

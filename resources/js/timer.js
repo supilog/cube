@@ -132,6 +132,10 @@ const cubelog_timer = {
                 if (xhr.status === 200) {
                     const json = JSON.parse(xhr.responseText);
                     document.getElementById('scramble').textContent = json.scramble.text;
+
+                    for(let i = 0; i < 54; i++){
+                        document.getElementById('cubeview-cell-' + i).classList.add('cube-' + json.scramble.colors[i]);
+                    }
                 }
             }
         }

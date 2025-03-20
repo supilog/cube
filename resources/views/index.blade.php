@@ -8,11 +8,13 @@
                 <span id="timer" class="text-left">0.00</span>
             </div>
             <div id="cubeview" class="">
+                <?php $key = 0; ?>
                 @foreach(array_keys($colors) as $face)
                     <div class="surface {{$face}}">
                         <div class="wrapper">
                             @for($i = 1; $i < 10; $i++)
-                                <div class="cube cube-{{$i}} cube-{{$colors[$face]}}"></div>
+                                <div id="cubeview-cell-{{$key}}" class="cube cube-{{$i}}"></div>
+                                    <?php $key++; ?>
                             @endfor
                         </div>
                     </div>

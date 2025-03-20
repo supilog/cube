@@ -15,12 +15,13 @@ class CubesApiController extends Controller
      */
     public function scramble(CubeService $cs): array
     {
-        $scramble_text = implode(' ', $cs->scrambleToTextArray($cs->scramble()));
-        $scramble_colors = array();
+        $scramble_info = $cs->scramble();
+        $scramble_text = implode(' ', $cs->scrambleToTextArray($scramble_info));
+        $scramble_colors = $cs->scrambleToColorArray($scramble_info);
         return [
             'scramble' => [
                 'text' => $scramble_text,
-                'colors' => $scramble_colors
+                'colors' => $scramble_colors,
             ]
         ];
     }
