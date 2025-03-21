@@ -132,8 +132,14 @@ const cubelog_timer = {
                 if (xhr.status === 200) {
                     const json = JSON.parse(xhr.responseText);
                     document.getElementById('scramble').textContent = json.scramble.text;
-
+                    console.log(json);
                     for(let i = 0; i < 54; i++){
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-white');
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-orange');
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-green');
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-red');
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-blue');
+                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-yellow');
                         document.getElementById('cubeview-cell-' + i).classList.add('cube-' + json.scramble.colors[i]);
                     }
                 }
