@@ -33,7 +33,7 @@ class CubeService
             }
             $ret[$index]['roll'] = $next_roll;
             $ret[$index]['times'] = $next_times;
-            $length += ($next_times == 1) ? 2 : 1;
+            $length += ($next_times == 3) ? 1 : $next_times;
         }
         return $ret;
     }
