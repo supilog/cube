@@ -4,6 +4,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* fonts */
 .josefin-sans-regular {
     font-family: "Josefin Sans", sans-serif;
@@ -218,7 +222,7 @@ header {
     }
 }
 
-#records {
+#list {
     .list-time {
         cursor: pointer;
 
@@ -298,6 +302,23 @@ header {
     margin: 0 20px;
 }
 
+#records {
+    h2 {
+        font-size: 1.4rem;
+        color: map.get($cubes, "green");
+        font-weight: bold;
+    }
+
+    .list-time {
+        &:hover {
+        }
+    }
+
+    .wrapper {
+        border-bottom: 1px solid map.get($cubes, "hr");
+    }
+}
+
 /* fonts */
 .lobster-regular {
     font-family: "Lobster", sans-serif;
@@ -324,3 +345,4 @@ header {
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: map.get($colors, stroke);
 }
+

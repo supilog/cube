@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto p-6 lg:p-8">
-        <div id="records" class="">
+        <div id="list" class="">
         </div>
         <div id="show" class="modal">
             <div class="modal-container">

@@ -323,4 +323,58 @@ class CubeService
 
         return $cube;
     }
+
+    public function getRecords($results): array
+    {
+        $ret = array();
+        // single best
+        $ret['single'] = array_reverse($this->singleBest($results));
+        // AO5
+        $ret['ao5'] = array_reverse($this->averageRecord($results, 5));
+        // AO12
+        $ret['ao12'] = array_reverse($this->averageRecord($results, 12));
+        return $ret;
+    }
+
+    public function singleBest($results): array {
+        $ret = array();
+        $min = -1;
+        foreach($results as $result){
+            if ($min == -1 || $min >= $result->time) {
+                $ret[] = $result;
+                $min = $result->time;
+            }
+        }
+        return $ret;
+    }
+
+    public function averageRecord($results, $num): array
+    {
+        $ret = array();
+        $min = -1;
+        for ($i = $num - 1; $i < count($results); $i++) {
+            $current = array();
+            // $num個分の配列を作成
+            $scrambles = array();
+            for ($j = $i - $num + 1; $j < $i + 1; $j++) {
+                array_push($current, $results[$j]->time);
+                array_push($scrambles, $results[$j]->scramble);
+            }
+            // average計算
+            $sum = array_sum($current);
+            $average = ($sum - max($current) - min($current)) / ($num - 2);
+            // 追加判定
+            if ($min == -1 || $min >= $average) {
+                $data = [
+                    'dataset' => $results[$i]->dataset,
+                    'date' => $results[$i]->date,
+                    'scrambles' => $scrambles,
+                    'time' => $average
+                ];
+                array_push($ret, $data);
+                $min = $average;
+            }
+        }
+        return $ret;
+    }
 }

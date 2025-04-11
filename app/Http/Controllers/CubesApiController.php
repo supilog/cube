@@ -26,10 +26,17 @@ class CubesApiController extends Controller
         ];
     }
 
-    public function store(): array
+    public function records(CubeService $cs, Request $request): array
     {
-        return [
+        $records = array();
+        try{
+            $results = json_decode($request->getContent());
+            $records = $cs->getRecords($results->results);
+        }catch(Exception $e){
 
+        }
+        return [
+            'records' => $records
         ];
     }
 }

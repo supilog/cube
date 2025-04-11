@@ -30,8 +30,21 @@ class CubesController extends Controller
     }
 
     public function graph() {
-        $data = [];
+        $data = [
+        ];
         return view('graph', $data);
+    }
+
+    public function records(CubeService $cs) {
+        $data = [
+        ];
+        return view('records', $data);
+    }
+
+    public function stats(CubeService $cs) {
+        $data = [
+        ];
+        return view('stats', $data);
     }
 
     public function test($id){

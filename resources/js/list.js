@@ -5,7 +5,7 @@
         results.sort(function (a, b) {
             return b.date - a.date;
         });
-        document.getElementById('records').innerHTML = '';
+        document.getElementById('list').innerHTML = '';
         results.forEach(result => {
             const time = (result.time / 1000).toFixed(3);
             const dateTime = new Date(result.date);
@@ -13,7 +13,7 @@
                 + '/' + (dateTime.getMonth() + 1).toString().padStart(2, '0')
                 + '/' + dateTime.getDate().toString().padStart(2, '0');
             const createElement = '<div class="wrapper sm:flex sm:flex-col"><div class="text-xl font-bold list-time" cubeid="' + result.id + '">' + time + '</div><div class="sm:flex sm:flex-row text-cube-gray"><div>[' + dateText + ']</div><div>' + result.scramble + '</div></div></div>';
-            document.getElementById('records').insertAdjacentHTML('beforeend', createElement);
+            document.getElementById('list').insertAdjacentHTML('beforeend', createElement);
         });
         const cubeTimes = document.querySelectorAll('.list-time');
         cubeTimes.forEach(function (cubeTime) {

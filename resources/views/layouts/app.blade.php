@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cubelog</title>
     <!-- Styles -->
-    <script src="https://cdn.tailwindcss.com"></script>
     @vite('resources/scss/app.scss')
     <!-- icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -31,6 +30,8 @@
             <li><a href="{{ route('index') }}" class="material-icons">home</a></li>
             <li><a href="{{ route('list') }}" class="material-icons">list_alt</a></li>
             <li><a href="{{ route('graph') }}" class="material-icons">bar_chart</a></li>
+            <li><a href="{{ route('records') }}" class="material-icons">notifications</a></li>
+            <li><a href="{{ route('stats') }}" class="material-icons">search</a></li>
         </ul>
     </nav>
     @yield('content')
