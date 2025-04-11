@@ -1,6 +1,6 @@
 const records = {
-    init: function () {
-        this.records();
+    init: async function () {
+        await this.records();
     },
     records: async function () {
         var xhr = new XMLHttpRequest();
@@ -13,7 +13,6 @@ const records = {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200) {
                     const json = JSON.parse(xhr.responseText);
-                    console.log(json.records.single);
                     json.records.single.forEach(result => {
                         const time = (result.time / 1000).toFixed(3);
                         const dateTime = new Date(result.date);
@@ -44,26 +43,6 @@ const records = {
                 }
             }
         }
-    },
-    keyDown: function (event) {
-    },
-    keyUp: function (event) {
-
-    },
-    ready: function () {
-
-    },
-    timer: function () {
-
-    },
-    timerView: function () {
-
-    },
-    timerStore: function () {
-
-    },
-    scramble: function () {
-
     }
 };
 
