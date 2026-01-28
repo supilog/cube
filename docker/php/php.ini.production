@@ -1,0 +1,23 @@
+[PHP]
+; Laravel / production settings
+memory_limit = 256M
+upload_max_filesize = 2M
+post_max_size = 2M
+max_execution_time = 300
+max_input_time = 300
+
+; Error reporting for production (log only, do not display)
+display_errors = Off
+display_startup_errors = Off
+error_reporting = E_ALL
+log_errors = On
+
+; Timezone
+date.timezone = Asia/Tokyo
+
+; OPcache for production (validate_timestamps off for performance)
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 10000
+opcache.validate_timestamps = 0
