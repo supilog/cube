@@ -69,6 +69,7 @@ cube/
 
 ## 本番環境の構築手順
 ```bash
+mkdir -p /var/www/vhosts/cube.supisupi.com
 cd /var/www/vhosts/cube.supisupi.com
 git clone git@github.com:supilog/cube.git .
 cp -i src/.env.example src/.env
