@@ -10,6 +10,8 @@ RUN apk add --no-cache \
     libxml2-dev \
     icu-dev \
     linux-headers \
+    nodejs \
+    npm \
     $PHPIZE_DEPS
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \

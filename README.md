@@ -75,6 +75,8 @@ git clone git@github.com:supilog/cube.git .
 cp -i src/.env.example src/.env
 
 docker compose -f docker-compose.prod.yml up -d --build
-docker compose exec app composer install --no-interaction
-docker compose exec app php artisan key:generate
+docker compose -f docker-compose.prod.yml exec app composer install --no-interaction
+docker compose -f docker-compose.prod.yml exec app php artisan key:generate
+docker compose -f docker-compose.prod.yml exec app npm ci
+docker compose -f docker-compose.prod.yml exec app npm run build
 ```
