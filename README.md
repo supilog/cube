@@ -73,7 +73,11 @@ mkdir -p /var/www/vhosts/cube.supisupi.com
 cd /var/www/vhosts/cube.supisupi.com
 git clone git@github.com:supilog/cube.git .
 cp -i src/.env.example src/.env
+# HTTPS で提供する場合は .env の APP_URL を https に設定すること
+# 例: APP_URL=https://cube.supisupi.com
+```
 
+```bash
 docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec app composer install --no-interaction
 docker compose -f docker-compose.prod.yml exec app php artisan key:generate
