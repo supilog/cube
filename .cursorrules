@@ -1,0 +1,9 @@
+# Project Context
+- Framework: Laravel 12+
+- Language: PHP 8.4+
+- Database: IndexedDB
+
+# application
+- 名前: CUBELOG
+- コンセプト: ルービックキューブのタイムをお手軽に計測。シンプルでおしゃれなUIで飽きない見た目。
+
