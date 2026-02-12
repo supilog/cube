@@ -4,6 +4,7 @@ import { initTimer } from './timer.js';
 import { initList } from './list.js';
 import { initGraph } from './graph.js';
 import { initRecords } from './records.js';
+import { initStats } from './stats.js';
 
 const STORAGE_KEY = 'cubelog_scramble';
 
@@ -49,6 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (document.querySelector('.records-page')) {
     initRecords();
+    return;
+  }
+  if (document.querySelector('.stats-page')) {
+    initStats();
     return;
   }
 
