@@ -4,377 +4,188 @@ namespace App\Services;
 
 class CubeService
 {
+    /** 色名 → 展開図用HEX（cubeNet.js と同一） */
+    private const COLOR_TO_HEX = [
+        'white' => '#ffffff',
+        'orange' => '#fc7109',
+        'green' => '#13872d',
+        'red' => '#e20017',
+        'blue' => '#0341df',
+        'yellow' => '#ffd700',
+    ];
 
     /**
-     * スクランブルデータを取得する(数値配列)
-     * @return array
+     * 回転記号文字列と展開図データをまとめて取得（トップ表示・タイマーストップ時共通）
+     *
+     * @return array{notation: string, cube_net: array{U: array, D: array, F: array, B: array, L: array, R: array}}
+     * @throws \Random\RandomException
+     */
+    public function getNotationAndCubeNet(): array
+    {
+        $scrambleData = $this->scramble();
+        $notation = implode(' ', $this->scrambleToTextArray($scrambleData));
+        $flatColors = $this->scrambleToColorArray($scrambleData);
+        $cubeNet = $this->flatColorsToCubeNet($flatColors);
+
+        return [
+            'notation' => $notation,
+            'cube_net' => $cubeNet,
+        ];
+    }
+
+    /**
+     * スクランブルデータを取得（内部用・数値配列）
+     *
+     * @return array<int, array{roll: int, times: int}>
      * @throws \Random\RandomException
      */
     public function scramble(): array
     {
-        $ret = array();
+        $ret = [];
         $length = 0;
         while ($length < config('cube.scramble.length')) {
-            list($next_roll, $next_times) = $this->roll();
+            [$nextRoll, $nextTimes] = $this->roll();
             $index = count($ret);
-            // 前回と同じ回転方向なら無視
-            if (!empty($ret[$index - 1])) {
-                if ($ret[$index - 1]['roll'] == $next_roll) {
-                    continue;
-                }
+            if ($index > 0 && $ret[$index - 1]['roll'] === $nextRoll) {
+                continue;
             }
-            // 前々回と前回が向かい合う面の場合、前々回と同じ回転方向なら無視
-            if (!empty($ret[$index - 2])) {
-                if (floor($ret[$index - 2]['roll'] / 2) == floor($ret[$index - 1]['roll'] / 2)) {
-                    if ($ret[$index - 2]['roll'] == $next_roll) {
-                        continue;
-                    }
-                }
+            if ($index > 1 && (int) floor($ret[$index - 2]['roll'] / 2) === (int) floor($ret[$index - 1]['roll'] / 2) && $ret[$index - 2]['roll'] === $nextRoll) {
+                continue;
             }
-            $ret[$index]['roll'] = $next_roll;
-            $ret[$index]['times'] = $next_times;
-            $length += ($next_times == 3) ? 1 : $next_times;
+            $ret[] = ['roll' => $nextRoll, 'times' => $nextTimes];
+            $length += $nextTimes === 3 ? 1 : $nextTimes;
         }
         return $ret;
     }
 
     /**
-     * ランダムで回転情報(方向,回数)を取得
-     * 方向 0:U, 1:D, 2:F, 3:B, 4:R, 5:R
-     * 回数 1:順方向1, 2:順方向2(2), 3:逆方向1(')
-     * @return array
+     * ランダムで回転情報を取得
+     * 方向: 0=U, 1=D, 2=F, 3=B, 4=R, 5=L
+     * 回数: 1=1回, 2=2(180°), 3=逆方向(')
+     *
+     * @return array{0: int, 1: int}
      * @throws \Random\RandomException
      */
     public function roll(): array
     {
-        // 方向(R, U, L, D, F, Bの6パターン)
         $roll = random_int(0, 5);
-        // 回数(U, U2, U'の3パターン)
         $times = random_int(1, 3);
-        return array($roll, $times);
+        return [$roll, $times];
     }
 
     /**
-     * スクランブルデータ(数値配列)を記号文字の配列にする
-     * @param $scramble
-     * @return array
+     * スクランブル数値配列を WCA 記号の配列に変換
+     *
+     * @param array<int, array{roll: int, times: int}> $scramble
+     * @return array<int, string>
      */
-    public function scrambleToTextArray($scramble): array
+    public function scrambleToTextArray(array $scramble): array
     {
-        $ret = array();
+        $faces = ['U', 'D', 'F', 'B', 'R', 'L'];
+        $ret = [];
         foreach ($scramble as $data) {
-            $text = '';
-            switch ($data['roll']) {
-                case 0:
-                    $text = 'U';
-                    break;
-                case 1:
-                    $text = 'D';
-                    break;
-                case 2:
-                    $text = 'F';
-                    break;
-                case 3:
-                    $text = 'B';
-                    break;
-                case 4:
-                    $text = 'R';
-                    break;
-                case 5:
-                    $text = 'L';
-                    break;
-                default:
-                    break;
+            $text = $faces[$data['roll']];
+            if ($data['times'] === 2) {
+                $text .= '2';
+            } elseif ($data['times'] === 3) {
+                $text .= "'";
             }
-
-            switch ($data['times']) {
-                case 2:
-                    $text .= '2';
-                    break;
-                case 3:
-                    $text .= '\'';
-                    break;
-                default:
-                    break;
-            }
-            array_push($ret, $text);
+            $ret[] = $text;
         }
         return $ret;
     }
 
     /**
-     * スクランブルデータ(数値配列)をカラー情報の配列にする
-     * @param $scramble
-     * @return array
+     * スクランブルを適用した 54 要素の色配列（色名）を返す
+     * 並び: U(0-8), L(9-17), F(18-26), R(27-35), B(36-44), D(45-53)
+     *
+     * @param array<int, array{roll: int, times: int}> $scramble
+     * @return array<int, string>
      */
-    public function scrambleToColorArray($scramble): array
+    public function scrambleToColorArray(array $scramble): array
     {
-        // 初期状態のカラーリング情報
-        $colors_info = $this->initColorArray();
-
-        // R1回分の回転を擬似的に作成
+        $colors = $this->initColorArray();
         foreach ($scramble as $value) {
-            $colors_info = $this->cubeRotate($colors_info, $value['roll'], $value['times']);
+            $colors = $this->cubeRotate($colors, $value['roll'], $value['times']);
         }
-
-        return $colors_info;
+        return $colors;
     }
 
     /**
-     * 初期状態のカラー情報を取得
-     * @return array
+     * 54 要素の平坦な色配列を展開図用 { U, D, F, B, L, R } に変換（各面9要素・HEX）
+     *
+     * @param array<int, string> $flatColors
+     * @return array{U: array<int, string>, D: array<int, string>, F: array<int, string>, B: array<int, string>, L: array<int, string>, R: array<int, string>}
+     */
+    public function flatColorsToCubeNet(array $flatColors): array
+    {
+        $toHex = fn (string $name): string => self::COLOR_TO_HEX[$name] ?? '#888888';
+        $slice = fn (array $arr, int $from, int $len): array => array_map($toHex, array_slice($arr, $from, $len));
+
+        return [
+            'U' => $slice($flatColors, 0, 9),
+            'L' => $slice($flatColors, 9, 9),
+            'F' => $slice($flatColors, 18, 9),
+            'R' => $slice($flatColors, 27, 9),
+            'B' => $slice($flatColors, 36, 9),
+            'D' => $slice($flatColors, 45, 9),
+        ];
+    }
+
+    /**
+     * 初期状態の 54 色（色名）配列
+     *
+     * @return array<int, string>
      */
     public function initColorArray(): array
     {
-        $ret = array();
-        $colors = [
-            0 => 'white',
-            1 => 'orange',
-            2 => 'green',
-            3 => 'red',
-            4 => 'blue',
-            5 => 'yellow'
-        ];
-        for ($i = 0; $i < 6; $i++) {
+        $colors = ['white', 'orange', 'green', 'red', 'blue', 'yellow'];
+        $ret = [];
+        foreach ($colors as $color) {
             for ($j = 0; $j < 9; $j++) {
-                $key = $i * 9 + $j;
-                $ret[$key] = $colors[$i];
+                $ret[] = $color;
             }
         }
         return $ret;
     }
 
     /**
-     * カラーの回転処理(1記号分)を処理する
-     * @param $colors
-     * @param $roll
-     * @param $times
-     * @return array
+     * 1記号分の回転を適用
+     *
+     * @param array<int, string> $colors
+     * @param int $roll 0=U, 1=D, 2=F, 3=B, 4=R, 5=L
+     * @param int $times 1=90°CW, 2=180°, 3=90°CCW
+     * @return array<int, string>
      */
-    public function cubeRotate($colors, $roll, $times)
+    public function cubeRotate(array $colors, int $roll, int $times): array
     {
+        $operation = $this->getRotationOperation($roll);
         $cube = $colors;
-        $operation = array();
-        switch ($roll) {
-            case 0:
-                // U
-                $operation = [
-                    9 => 36,
-                    10 => 37,
-                    11 => 38,
-                    18 => 9,
-                    19 => 10,
-                    20 => 11,
-                    27 => 18,
-                    28 => 19,
-                    29 => 20,
-                    36 => 27,
-                    37 => 28,
-                    38 => 29,
-                    0 => 2,
-                    1 => 5,
-                    2 => 8,
-                    5 => 7,
-                    8 => 6,
-                    7 => 3,
-                    6 => 0,
-                    3 => 1
-                ];
-                break;
-            case 1:
-                // D
-                $operation = [
-                    15 => 24,
-                    16 => 25,
-                    17 => 26,
-                    24 => 33,
-                    25 => 34,
-                    26 => 35,
-                    33 => 42,
-                    34 => 43,
-                    35 => 44,
-                    42 => 15,
-                    43 => 16,
-                    44 => 17,
-                    45 => 47,
-                    46 => 50,
-                    47 => 53,
-                    50 => 52,
-                    53 => 51,
-                    52 => 48,
-                    51 => 45,
-                    48 => 46
-                ];
-                break;
-            case 2:
-                // F
-                $operation = [
-                    6 => 27,
-                    7 => 30,
-                    8 => 33,
-                    27 => 47,
-                    30 => 46,
-                    33 => 45,
-                    45 => 11,
-                    46 => 14,
-                    47 => 17,
-                    11 => 8,
-                    14 => 7,
-                    17 => 6,
-                    18 => 20,
-                    19 => 23,
-                    20 => 26,
-                    23 => 25,
-                    26 => 24,
-                    25 => 21,
-                    24 => 18,
-                    21 => 19
-
-                ];
-                break;
-            case 3:
-                // B
-                $operation = [
-                    0 => 15,
-                    1 => 12,
-                    2 => 9,
-                    9 => 51,
-                    12 => 52,
-                    15 => 53,
-                    51 => 35,
-                    52 => 32,
-                    53 => 29,
-                    29 => 0,
-                    32 => 1,
-                    35 => 2,
-                    36 => 38,
-                    37 => 41,
-                    38 => 44,
-                    41 => 43,
-                    44 => 42,
-                    43 => 39,
-                    42 => 36,
-                    39 => 37
-
-
-                ];
-                break;
-            case 4:
-                // R
-                $operation = [
-                    20 => 2,
-                    23 => 5,
-                    26 => 8,
-                    2 => 42,
-                    5 => 39,
-                    8 => 36,
-                    42 => 47,
-                    39 => 50,
-                    36 => 53,
-                    47 => 20,
-                    50 => 23,
-                    53 => 26,
-                    27 => 29,
-                    28 => 32,
-                    29 => 35,
-                    32 => 34,
-                    35 => 33,
-                    34 => 30,
-                    33 => 27,
-                    30 => 28
-                ];
-                break;
-            case 5:
-                // L
-                $operation = [
-                    0 => 18,
-                    3 => 21,
-                    6 => 24,
-                    18 => 45,
-                    21 => 48,
-                    24 => 51,
-                    45 => 44,
-                    48 => 41,
-                    51 => 38,
-                    38 => 6,
-                    41 => 3,
-                    44 => 0,
-                    9 => 11,
-                    10 => 14,
-                    11 => 17,
-                    14 => 16,
-                    17 => 15,
-                    16 => 12,
-                    15 => 9,
-                    12 => 10
-
-                ];
-                break;
-            default:
-                break;
-        }
-
         for ($i = 0; $i < $times; $i++) {
-            $cube_previous = $cube;
-            foreach ($operation as $position_origin => $position_new) {
-                $cube[$position_new] = $cube_previous[$position_origin];
+            $prev = $cube;
+            foreach ($operation as $from => $to) {
+                $cube[$to] = $prev[$from];
             }
         }
-
         return $cube;
     }
 
-    public function getRecords($results): array
+    /**
+     * 面インデックスに対する移動マップ（1回転分）
+     *
+     * @param int $roll
+     * @return array<int, int>
+     */
+    private function getRotationOperation(int $roll): array
     {
-        $ret = array();
-        // single best
-        $ret['single'] = array_reverse($this->singleBest($results));
-        // AO5
-        $ret['ao5'] = array_reverse($this->averageRecord($results, 5));
-        // AO12
-        $ret['ao12'] = array_reverse($this->averageRecord($results, 12));
-        return $ret;
-    }
-
-    public function singleBest($results): array {
-        $ret = array();
-        $min = -1;
-        foreach($results as $result){
-            if ($min == -1 || $min >= $result->time) {
-                $ret[] = $result;
-                $min = $result->time;
-            }
-        }
-        return $ret;
-    }
-
-    public function averageRecord($results, $num): array
-    {
-        $ret = array();
-        $min = -1;
-        for ($i = $num - 1; $i < count($results); $i++) {
-            $current = array();
-            // $num個分の配列を作成
-            $scrambles = array();
-            for ($j = $i - $num + 1; $j < $i + 1; $j++) {
-                array_push($current, $results[$j]->time);
-                array_push($scrambles, $results[$j]->scramble);
-            }
-            // average計算
-            $sum = array_sum($current);
-            $average = ($sum - max($current) - min($current)) / ($num - 2);
-            // 追加判定
-            if ($min == -1 || $min >= $average) {
-                $data = [
-                    'dataset' => $results[$i]->dataset,
-                    'date' => $results[$i]->date,
-                    'scrambles' => $scrambles,
-                    'time' => $average
-                ];
-                array_push($ret, $data);
-                $min = $average;
-            }
-        }
-        return $ret;
+        $ops = [
+            0 => [ 9=>36,10=>37,11=>38, 18=>9,19=>10,20=>11, 27=>18,28=>19,29=>20, 36=>27,37=>28,38=>29, 0=>2,1=>5,2=>8, 5=>7,8=>6,7=>3,6=>0,3=>1 ],
+            1 => [ 15=>24,16=>25,17=>26, 24=>33,25=>34,26=>35, 33=>42,34=>43,35=>44, 42=>15,43=>16,44=>17, 45=>47,46=>50,47=>53, 50=>52,53=>51,52=>48,51=>45,48=>46 ],
+            2 => [ 6=>27,7=>30,8=>33, 27=>47,30=>46,33=>45, 45=>11,46=>14,47=>17, 11=>8,14=>7,17=>6, 18=>20,19=>23,20=>26, 23=>25,26=>24,25=>21,24=>18,21=>19 ],
+            3 => [ 0=>15,1=>12,2=>9, 9=>51,12=>52,15=>53, 51=>35,52=>32,53=>29, 29=>0,32=>1,35=>2, 36=>38,37=>41,38=>44, 41=>43,44=>42,43=>39,42=>36,39=>37 ],
+            4 => [ 20=>2,23=>5,26=>8, 2=>42,5=>39,8=>36, 42=>47,39=>50,36=>53, 47=>20,50=>23,53=>26, 27=>29,28=>32,29=>35, 32=>34,35=>33,34=>30,33=>27,30=>28 ],
+            5 => [ 0=>18,3=>21,6=>24, 18=>45,21=>48,24=>51, 45=>44,48=>41,51=>38, 38=>6,41=>3,44=>0, 9=>11,10=>14,11=>17, 14=>16,17=>15,16=>12,15=>9,12=>10 ],
+        ];
+        return $ops[$roll] ?? [];
     }
 }

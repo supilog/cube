@@ -1,348 +1,78 @@
-@use "sass:map";
-@import url('https://fonts.googleapis.com/css2?family=Kablammo&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* fonts */
-.josefin-sans-regular {
-    font-family: "Josefin Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.oswald-regular {
-    font-family: "Oswald", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.roboto-regular {
-    font-family: "Roboto", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    font-variation-settings: "wdth" 100;
-}
-
-/* colors */
-$colors: (
-    stroke: #999,
-);
-
-/* breakpoints */
-$breakpoints: (
-    'sm': 'screen and (min-width: 576px)',
-    'md': 'screen and (min-width: 768px)',
-    'lg': 'screen and (min-width: 992px)',
-    'xl': 'screen and (min-width: 1200px)',
-) !default;
-@mixin media($breakpoint) {
-    @media #{map.get($breakpoints, $breakpoint)} {
-        @content;
-    }
-}
-
-/* cube */
-$cube-size: 20px;
-$cubes: (
-    "green": #13872d,
-    "blue": #0341df,
-    "red": #e20017,
-    "orange": #fc7109,
-    "yellow": #fefa0a,
-    "white": #f2ece3,
-    "gray": #696156,
-    'hr': #ECEAE8
-);
-
-@each $key, $item in $cubes {
-    .cube-#{$key} {
-        background-color: $item;
-    }
-}
-
-@each $key, $item in $cubes {
-    .text-cube-#{$key} {
-        color: $item;
-    }
-}
-
-#cubeview {
-    margin: 0 auto;
-    position: relative;
-    display: block;
-    width: calc($cube-size * 12);
-    height: calc($cube-size * 9);
-    z-index: 0;
-    @include media(sm) {
-        width: calc($cube-size * 12);
-        height: calc($cube-size * 9);
-    }
-
-    .surface {
-        position: absolute;
-        width: calc($cube-size * 3);
-        height: calc($cube-size * 3);
-        @include media(sm) {
-            width: calc($cube-size * 3);
-            height: calc($cube-size * 3);
-        }
-
-        &.up {
-            top: 0;
-            left: calc($cube-size * 3);
-        }
-
-        &.down {
-            top: calc($cube-size * 6);
-            left: calc($cube-size * 3);
-        }
-
-        &.back {
-            top: calc($cube-size * 3);
-            left: calc($cube-size * 9);
-        }
-
-        &.front {
-            top: calc($cube-size * 3);
-            left: calc($cube-size * 3);
-        }
-
-        &.left {
-            top: calc($cube-size * 3);
-            left: 0;
-        }
-
-        &.right {
-            top: calc($cube-size * 3);
-            left: calc($cube-size * 6);
-        }
-
-        .wrapper {
-            width: 100%;
-            height: 100%;
-
-            .cube {
-                position: absolute;
-                width: calc($cube-size - 2px);
-                height: calc($cube-size - 2px);
-                border: 1px solid #000;
-
-                &.cube-1 {
-                    top: 0;
-                    left: 0;
-                }
-
-                &.cube-2 {
-                    top: 0;
-                    left: calc($cube-size * 1);
-                }
-
-                &.cube-3 {
-                    top: 0;
-                    left: calc($cube-size * 2);
-                }
-
-                &.cube-4 {
-                    top: calc($cube-size * 1);
-                    left: 0;
-                }
-
-                &.cube-5 {
-                    top: calc($cube-size * 1);
-                    left: calc($cube-size * 1);
-                }
-
-                &.cube-6 {
-                    top: calc($cube-size * 1);
-                    left: calc($cube-size * 2);
-                }
-
-                &.cube-7 {
-                    top: calc($cube-size * 2);
-                    left: 0;
-                }
-
-                &.cube-8 {
-                    top: calc($cube-size * 2);
-                    left: calc($cube-size * 1);
-                }
-
-                &.cube-9 {
-                    top: calc($cube-size * 2);
-                    left: calc($cube-size * 2);
-                }
-            }
-        }
-    }
-
-}
-
-#timer {
-    &.wait {
-        color: map.get($cubes, "red");
-    }
-
-    &.ready {
-        color: map.get($cubes, "green");
-    }
-}
-
-header {
-}
-
-#main {
-    nav {
-        position: fixed;
-        height: 100vh;
-        top: 40px;
-        width: 60px;
-        left: -100%;
-        transition: all .2s .2s ease-in-out;
-        border-top: 1px solid #fff;
-        opacity: 0;
-
-        &.open {
-            left: 0;
-            opacity: 1;
-        }
-
-        .nav-list {
-            li {
-                cursor: pointer;
-            }
-        }
-    }
-}
-
-#list {
-    .list-time {
-        cursor: pointer;
-
-        &:hover {
-            text-decoration: underline;
-            color: #0000EE;
-        }
-    }
-
-    .wrapper {
-        border-bottom: 1px solid map.get($cubes, "hr");
-    }
-}
-
-#show {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    background: rgba(0, 0, 0, 50%);
-    padding: 40px 20px;
-    overflow: auto;
-    opacity: 0;
-    visibility: hidden;
-    transition: .3s;
-    box-sizing: border-box;
-    z-index: -1;
-
-    &.is-active {
-        opacity: 1;
-        visibility: visible;
-        z-index: 1;
-    }
-
-    .modal-container {
-        position: relative;
-        display: inline-block;
-        vertical-align: middle;
-        max-width: 600px;
-        width: 90%;
-
-        .modal-content {
-            background: #fff;
-            text-align: left;
-            line-height: 1.8;
-            padding: 0.8rem 1.4rem;
-        }
-
-        .modal-content p {
-            margin: 1em 0;
-        }
-
-        .modal-close {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            top: -15px;
-            right: -15px;
-            width: 30px;
-            height: 30px;
-            color: #fff;
-            background: map.get($cubes, "green");
-            border-radius: 50%;
-            cursor: pointer;
-        }
-    }
-}
-
-.canvas-container {
-    position: relative;
-    width: calc(100% - 40px);
-    height: 100%;
-    overflow: hidden;
-    margin: 0 20px;
-}
-
-#records {
-    h2 {
-        font-size: 1.4rem;
-        color: map.get($cubes, "green");
-        font-weight: bold;
-    }
-
-    .list-time {
-        &:hover {
-        }
-    }
-
-    .wrapper {
-        border-bottom: 1px solid map.get($cubes, "hr");
-    }
-}
-
-/* fonts */
-.lobster-regular {
-    font-family: "Lobster", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.montserrat-regular {
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.kablammo-regular {
-    font-family: "Kablammo", system-ui;
+/* ヘッダロゴ CUBELOG */
+.cubelog-title {
+    font-family: Kablammo, system-ui;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
     font-variation-settings: "MORF" 0;
+
+    span {
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: #999;
+    }
+
+    span:nth-child(1) { color: #13872d; }
+    span:nth-child(2) { color: #e20017; }
+    span:nth-child(3) { color: #f2ece3; }
+    span:nth-child(4) { color: #000000; }
+    span:nth-child(5) { color: #0341df; }
+    span:nth-child(6) { color: #fc7109; }
+    span:nth-child(7) { color: #fefa0a; }
 }
 
-.text-stroke {
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-stroke-color: map.get($colors, stroke);
+/* トップページ: タイマー表示 */
+.timer-display {
+    font-size: 8rem;
+    font-family: Roboto, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+    line-height: 1;
 }
 
+/* トップページ: 回転記号表示 */
+.scramble-notation {
+    font-size: 2.25rem;
+    color: #000;
+}
+
+/* トップページ: ルービックキューブ展開図（初期配置） */
+.cube-net-wrapper {
+    margin-top: 1rem;
+}
+
+.cube-net {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 4px;
+    justify-items: center;
+    align-items: center;
+
+    /* レイアウト: 上段 U / 中段 L F R B / 下段 D（回転記号に合わせて後から状態を差し替え可能） */
+    .cube-face--u { grid-column: 2; grid-row: 1; }
+    .cube-face--l { grid-column: 1; grid-row: 2; }
+    .cube-face--f { grid-column: 2; grid-row: 2; }
+    .cube-face--r { grid-column: 3; grid-row: 2; }
+    .cube-face--b { grid-column: 4; grid-row: 2; }
+    .cube-face--d { grid-column: 2; grid-row: 3; }
+}
+
+.cube-face {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+    background: #333;
+}
+
+.cube-sticker {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+    background: var(--face-color);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}

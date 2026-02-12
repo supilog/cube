@@ -1,150 +1,161 @@
-const cubelog_timer = {
-    // ステータス
-    currentStatus: '',
-    // ステータス値
-    status: {
-        neutral: 0,
-        wait: 1,
-        ready: 2,
-        timer: 3
-    },
-    // タイマーオブジェクト
-    cubeTimer: '',
-    // タイマー表示インターバル
-    cubeTimerInterval: 37,
-    // 開始時間
-    startTime: 0,
-    // 経過時間
-    elapsedTime: 0,
-    // スクランブル
-    // 長押しタイマー
-    longPushTimer: '',
-    // 長押し判定値
-    longPushWaitTime: 600,
-    // キーコード
-    keys: {
-        Space: 32,
-    },
+/**
+ * タイマー: スペース長押しで準備 → 離すとスタート、スペースでストップ。記録は IndexedDB に保存。
+ */
 
-    init: function () {
-        this.currentStatus = this.status.neutral;
-        window.addEventListener('keydown', (event) => {
-            this.keyDown(event);
-        });
-        window.addEventListener('keyup', (event) => {
-            this.keyUp(event);
-        });
-        // スクランブル情報の取得
-        this.scramble();
-    },
-    keyDown: function (event) {
-        if (event.keyCode !== this.keys.Space) {
-            return false;
-        }
+const DB_NAME = 'cube';
+const STORE_NAME = 'times';
+const HOLD_THRESHOLD_MS = 400;
 
-        // 長押し開始時
-        if (this.currentStatus === this.status.neutral) {
-            document.getElementById('timer').classList.add('wait');
-            this.currentStatus = this.status.wait;
-            this.longPushTimer = setTimeout(function () {
-                this.ready();
-            }.bind(this), this.longPushWaitTime);
-        }
+const COLOR_INITIAL = '';
+const COLOR_RED = '#e20017';
+const COLOR_GREEN = '#13872d';
 
-        // タイマー終了時
-        if (this.currentStatus === this.status.timer) {
-            // タイマー停止
-            clearTimeout(this.cubeTimer);
-            // 最終タイマー表示
-            this.timerView();
-            // データ保存処理
-            this.timerStore();
-            // 初期化処理
-            this.currentStatus = this.status.neutral;
-            // スクランブル再表示
-            this.scramble();
-        }
+const DB_VERSION = 2;
 
-    },
-    keyUp: function (event) {
-        if (event.keyCode !== this.keys.Space) {
-            return false;
-        }
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+  });
+}
 
-        // 共通処理
-        clearTimeout(this.longPushTimer);
-        document.getElementById('timer').classList.remove('wait');
-        // 長押し完了前の処理
-        if (this.currentStatus === this.status.wait) {
-            this.currentStatus = this.status.neutral;
-        }
-        // 長押し完了後の処理
-        if (this.currentStatus === this.status.ready) {
-            this.currentStatus = this.status.timer;
-            this.startTime = Date.now();
-            this.timer();
-        }
-    },
-    ready: function () {
-        if (this.currentStatus !== this.status.wait) {
-            return false;
-        }
-        // 長押し完了処理
-        this.currentStatus = this.status.ready;
-        document.getElementById('timer').textContent = '0.00';
-        document.getElementById('timer').classList.remove('wait');
-        document.getElementById('timer').classList.add('ready');
-    },
-    timer: function () {
-        document.getElementById('timer').classList.remove('wait');
-        document.getElementById('timer').classList.remove('ready');
-        // タイマー表示処理
-        this.cubeTimer = setInterval(function () {
-            this.timerView();
-        }.bind(this), this.cubeTimerInterval);
-    },
-    timerView: function () {
-        this.elapsedTime = Date.now() - this.startTime;
-        const minutes = Math.floor((this.elapsedTime / 1000 / 60) % 60);
-        const seconds = Math.floor((this.elapsedTime / 1000) % 60);
-        const milliseconds = Math.floor((this.elapsedTime % 1000) / 10);
-        if (minutes > 0) {
-            document.getElementById('timer').textContent = String(minutes) + ':' + String(seconds).padStart(2, '0') + '.' + String(milliseconds).padStart(2, '0');
-        } else {
-            document.getElementById('timer').textContent = String(seconds) + '.' + String(milliseconds).padStart(2, '0');
-        }
-    },
-    timerStore: function () {
-        let data = {
-            dataset: 1,
-            date: Date.now(),
-            scramble: document.getElementById('scramble').textContent,
-            time: this.elapsedTime
-        }
-        CubeDB.storeData(data);
-    },
-    scramble: function () {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/scramble');
-        xhr.send();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    const json = JSON.parse(xhr.responseText);
-                    document.getElementById('scramble').textContent = json.scramble.text;
-                    for(let i = 0; i < 54; i++){
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-white');
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-orange');
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-green');
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-red');
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-blue');
-                        document.getElementById('cubeview-cell-' + i).classList.remove('cube-yellow');
-                        document.getElementById('cubeview-cell-' + i).classList.add('cube-' + json.scramble.colors[i]);
-                    }
-                }
-            }
-        }
+function saveRecord(recordWithoutId) {
+  return openDB().then((db) => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const getKeysReq = store.getAllKeys();
+      getKeysReq.onerror = () => reject(getKeysReq.error);
+      getKeysReq.onsuccess = () => {
+        const keys = getKeysReq.result;
+        const nextId = keys.length ? Math.max(...keys) + 1 : 1;
+        const record = { ...recordWithoutId, id: nextId };
+        const putReq = store.put(record);
+        putReq.onerror = () => reject(putReq.error);
+        putReq.onsuccess = () => resolve(putReq.result);
+      };
+    });
+  });
+}
+
+function setTimerDisplayState(el, color) {
+  if (!el) return;
+  el.style.color = color || '';
+}
+
+function formatTime(msec) {
+  const sec = msec / 1000;
+  return sec.toFixed(2);
+}
+
+/**
+ * @param {() => void} [onSaveComplete] ストップして保存完了後に呼ぶコールバック（例: スクランブル再取得）
+ */
+export function initTimer(onSaveComplete) {
+  const timerEl = document.querySelector('.timer-display');
+  const notationEl = document.querySelector('.scramble-notation');
+  if (!timerEl) return;
+
+  // ページ表示時に DB を開いて作成（DevTools で cube → times が表示されるようにする）
+  openDB().then(
+    (db) => db.close(),
+    (err) => console.error('IndexedDB open error:', err)
+  );
+
+  let state = 'idle';
+  let holdTimeoutId = null;
+  let rafId = null;
+  let startTime = 0;
+
+  function resetDisplay() {
+    state = 'idle';
+    if (holdTimeoutId != null) {
+      clearTimeout(holdTimeoutId);
+      holdTimeoutId = null;
     }
-};
+    setTimerDisplayState(timerEl, COLOR_INITIAL);
+    timerEl.textContent = '0.00';
+  }
 
-cubelog_timer.init();
+  function startStopwatch() {
+    state = 'running';
+    setTimerDisplayState(timerEl, COLOR_INITIAL);
+    startTime = performance.now();
+    function tick() {
+      if (state !== 'running') return;
+      const elapsed = performance.now() - startTime;
+      timerEl.textContent = formatTime(elapsed);
+      rafId = requestAnimationFrame(tick);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stopStopwatch() {
+    if (rafId != null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    const elapsedMs = Math.round(performance.now() - startTime);
+    const notation = notationEl ? (notationEl.textContent || '').trim() : '';
+    const record = {
+      date: Math.floor(Date.now() / 1000),
+      notation,
+      time: elapsedMs,
+    };
+    saveRecord(record).then(
+      () => {
+        if (typeof onSaveComplete === 'function') onSaveComplete();
+      },
+      (err) => console.error('IndexedDB save error:', err)
+    );
+    timerEl.textContent = formatTime(elapsedMs);
+    state = 'idle';
+  }
+
+  function onKeyDown(e) {
+    if (e.code !== 'Space' || e.repeat) return;
+    e.preventDefault();
+
+    if (state === 'idle') {
+      state = 'holding_red';
+      setTimerDisplayState(timerEl, COLOR_RED);
+      holdTimeoutId = setTimeout(() => {
+        holdTimeoutId = null;
+        state = 'holding_green';
+        setTimerDisplayState(timerEl, COLOR_GREEN);
+      }, HOLD_THRESHOLD_MS);
+      return;
+    }
+
+    if (state === 'running') {
+      stopStopwatch();
+    }
+  }
+
+  function onKeyUp(e) {
+    if (e.code !== 'Space' || e.repeat) return;
+    e.preventDefault();
+
+    if (state === 'holding_red') {
+      clearTimeout(holdTimeoutId);
+      holdTimeoutId = null;
+      resetDisplay();
+      return;
+    }
+
+    if (state === 'holding_green') {
+      holdTimeoutId = null;
+      startStopwatch();
+    }
+  }
+
+  document.addEventListener('keydown', onKeyDown, { passive: false });
+  document.addEventListener('keyup', onKeyUp, { passive: false });
+}

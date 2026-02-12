@@ -40,6 +40,9 @@ yarn-error.log*
 docker-compose.override.yml
 .docker/
 
+# Backup (untracked)
+src_backup/
+
 # Misc
 *.bak
 *.tmp

@@ -1,8 +1,12 @@
 <?php
 
-use App\Http\Controllers\CubesApiController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\CubesApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/scramble', [CubesApiController::class, 'scramble'])->name('api.scramble');
-Route::post('/records', [CubesApiController::class, 'records'])->name('api.records');
+/*
+|--------------------------------------------------------------------------
+| キューブ関連 API（トップ表示・タイマーストップ時共通）
+|--------------------------------------------------------------------------
+*/
+Route::post('/cube/scramble', [CubesApiController::class, 'scramble'])
+    ->name('api.cube.scramble');
