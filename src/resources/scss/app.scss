@@ -76,3 +76,20 @@
     background: var(--face-color);
     border: 1px solid rgba(0, 0, 0, 0.15);
 }
+
+/* 記録更新バッジ（派手すぎない点滅） */
+.record-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    background: #e5e7eb;
+    border-radius: 9999px;
+    animation: record-badge-blink 2s ease-in-out 15;
+}
+
+@keyframes record-badge-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}

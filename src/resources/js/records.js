@@ -13,7 +13,7 @@ function openDB() {
   });
 }
 
-function getAllRecords() {
+export function getAllRecords() {
   return openDB().then((db) => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, 'readonly');
@@ -105,6 +105,52 @@ function computeAO12List(records) {
   }
   list.sort((a, b) => a.ao12 - b.ao12);
   return list.slice(0, 10);
+}
+
+/**
+ * 保存直後の記録がランキング10位以内に入っているかチェック
+ * @param {Array} allRecords 全記録（保存済みの新記録を含む）
+ * @param {{ id: number, time: number }} savedRecord 今保存した記録
+ * @returns {{ singleBest: number|null, ao5: number|null, ao12: number|null }} 各ランキングの順位（10位以内なら1-10、入っていなければnull）
+ */
+export function checkRankingUpdates(allRecords, savedRecord) {
+  const result = { singleBest: null, ao5: null, ao12: null };
+  if (!savedRecord || savedRecord.id == null) return result;
+
+  const singleBest = computeSingleBest(allRecords);
+  const singleRank = singleBest.findIndex((r) => r.id === savedRecord.id);
+  if (singleRank >= 0) result.singleBest = singleRank + 1;
+
+  const byId = [...allRecords].sort((a, b) => (a.id != null ? a.id : 0) - (b.id != null ? b.id : 0));
+  const lastIdx = byId.findIndex((r) => r.id === savedRecord.id);
+  if (lastIdx < 0) return result;
+
+  if (lastIdx >= 4) {
+    const slice5 = byId.slice(lastIdx - 4, lastIdx + 1);
+    const five = slice5.map((r) => r.time);
+    const valid = five.filter((t) => t != null && Number.isFinite(t));
+    if (valid.length === 5) {
+      const sorted = [...valid].sort((a, b) => a - b);
+      const dropMinMax = sorted.slice(1, 4);
+      const ao5 = dropMinMax.reduce((s, t) => s + t, 0) / 3;
+      const ao5List = computeAO5List(allRecords);
+      const ao5Rank = ao5List.findIndex((item) => item.endRecord.id === savedRecord.id);
+      if (ao5Rank >= 0) result.ao5 = ao5Rank + 1;
+    }
+  }
+
+  if (lastIdx >= 11) {
+    const slice12 = byId.slice(lastIdx - 11, lastIdx + 1);
+    const twelve = slice12.map((r) => r.time);
+    const valid = twelve.filter((t) => t != null && Number.isFinite(t));
+    if (valid.length === 12) {
+      const ao12List = computeAO12List(allRecords);
+      const ao12Rank = ao12List.findIndex((item) => item.endRecord.id === savedRecord.id);
+      if (ao12Rank >= 0) result.ao12 = ao12Rank + 1;
+    }
+  }
+
+  return result;
 }
 
 /** 1件の表示（list と同様のスタイル: タイム + [ymd] notation） */

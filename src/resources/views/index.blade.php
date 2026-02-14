@@ -15,6 +15,9 @@
         0.00
     </div>
 
+    {{-- 記録更新バッジ（ストップウォッチ停止時にランキング入りした場合に表示） --}}
+    <div id="record-badges" class="flex flex-wrap justify-center gap-2 mb-6 min-h-[2rem]" aria-live="polite"></div>
+
     {{-- 3. ルービックキューブ展開図（タイマーの下・初期配置） --}}
     <div class="cube-net-wrapper" aria-label="ルービックキューブ展開図">
         <div class="cube-net" data-initial="true">

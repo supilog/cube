@@ -3,7 +3,7 @@ import { renderCubeNet, updateCubeNetFromPage } from './cubeNet.js';
 import { initTimer } from './timer.js';
 import { initList } from './list.js';
 import { initGraph } from './graph.js';
-import { initRecords } from './records.js';
+import { initRecords, getAllRecords, checkRankingUpdates } from './records.js';
 import { initStats } from './stats.js';
 
 const STORAGE_KEY = 'cubelog_scramble';
@@ -84,5 +84,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  initTimer(() => fetchAndApplyScramble(notationEl, netEl));
+  initTimer((savedRecord) => {
+    fetchAndApplyScramble(notationEl, netEl);
+    if (savedRecord) {
+      showRankingBadges(savedRecord);
+    }
+  });
 });
+
+/**
+ * 記録保存時にランキング10位以内に入った場合、バッジを表示
+ */
+function showRankingBadges(savedRecord) {
+  const container = document.getElementById('record-badges');
+  if (!container) return;
+
+  getAllRecords()
+    .then((allRecords) => {
+      const { singleBest, ao5, ao12 } = checkRankingUpdates(allRecords, savedRecord);
+      const badges = [];
+      if (singleBest != null) badges.push({ label: 'Single Best', rank: singleBest });
+      if (ao5 != null) badges.push({ label: 'AO5', rank: ao5 });
+      if (ao12 != null) badges.push({ label: 'AO12', rank: ao12 });
+
+      container.innerHTML = '';
+      badges.forEach(({ label, rank }) => {
+        const badge = document.createElement('span');
+        badge.className = 'record-badge';
+        badge.textContent = `${label} ${rank}位`;
+        container.appendChild(badge);
+      });
+
+      if (badges.length > 0) {
+        setTimeout(() => {
+          container.innerHTML = '';
+        }, 60000);
+      }
+    })
+    .catch((err) => console.error('Ranking check error:', err));
+}

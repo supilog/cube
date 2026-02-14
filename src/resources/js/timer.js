@@ -39,7 +39,7 @@ function saveRecord(recordWithoutId) {
         const record = { ...recordWithoutId, id: nextId };
         const putReq = store.put(record);
         putReq.onerror = () => reject(putReq.error);
-        putReq.onsuccess = () => resolve(putReq.result);
+        putReq.onsuccess = () => resolve(record);
       };
     });
   });
@@ -110,8 +110,8 @@ export function initTimer(onSaveComplete) {
       time: elapsedMs,
     };
     saveRecord(record).then(
-      () => {
-        if (typeof onSaveComplete === 'function') onSaveComplete();
+      (savedRecord) => {
+        if (typeof onSaveComplete === 'function') onSaveComplete(savedRecord);
       },
       (err) => console.error('IndexedDB save error:', err)
     );
