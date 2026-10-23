@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    image: cube-php:8.4.17-fpm-alpine
+    image: cube-php:8.4.27-fpm-alpine
     container_name: cube-app
     restart: unless-stopped
     working_dir: /var/www/html
@@ -11,6 +11,7 @@ services:
       - ./src:/var/www/html
       - ./docker/php/php.ini.production:/usr/local/etc/php/conf.d/custom.ini:ro
       - ./docker/php/www.conf.production:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ../../shared/web/src/.env:/var/www/html/.env:ro
     networks:
       - cube-network
 

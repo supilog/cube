@@ -1,4 +1,4 @@
-FROM php:8.4.17-fpm-alpine
+FROM php:8.4.27-fpm-alpine
 
 # Install system dependencies and PHP extensions required by Laravel
 RUN apk add --no-cache \
