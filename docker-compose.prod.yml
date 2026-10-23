@@ -11,7 +11,7 @@ services:
       - ./src:/var/www/html
       - ./docker/php/php.ini.production:/usr/local/etc/php/conf.d/custom.ini:ro
       - ./docker/php/www.conf.production:/usr/local/etc/php-fpm.d/www.conf:ro
-      - ../../shared/web/src/.env:/var/www/html/.env:ro
+      - ../../shared/src/.env:/var/www/html/.env:ro
     networks:
       - cube-network
 
