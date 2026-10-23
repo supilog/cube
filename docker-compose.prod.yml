@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
+      args:
+        UID: 1002
+        GID: 1002
     image: cube-php:8.4.27-fpm-alpine
     container_name: cube-app
     restart: unless-stopped

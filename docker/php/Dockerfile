@@ -38,7 +38,9 @@ COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Create user for running PHP-FPM (optional, matches common Laravel setups)
-RUN addgroup -g 1000 www && adduser -u 1000 -G www -s /bin/sh -D www
+ARG UID=1000
+ARG GID=1000
+RUN addgroup -g ${GID} www && adduser -u ${UID} -G www -s /bin/sh -D www
 
 USER www
 
